@@ -6,7 +6,39 @@
 
 # Workflow
 
-# Directory structure
+## Directory structure
+
+
+```bash
+>> tree . --gitignore .gitignore
+
+dida-case-study/
+├── LICENSE
+├── README.md
+├── data
+│   └── raw
+│       ├── dida_test_task.zip
+│       ├── test_images
+│       ├── train_images
+│       └── train_labels
+├── docs
+│   └── overview.md
+├── notebooks
+│   ├── data-modelling.ipynb
+│   └── data-wrangling-preprocessing.ipynb
+├── opt
+│   └── conda_environment.yml
+└── src
+.gitignore
+```
+
+## Contributors
+Abhirup Ghosh, <abhirup.ghosh.184098@gmail.com>
+
+
+
+## License
+This project is licensed under the [MIT License](./LICENSE).
 
 # Environment
 
@@ -19,3 +51,4 @@
 * Modelling:
     * model documentation
     * model steps
+* final directory structure
