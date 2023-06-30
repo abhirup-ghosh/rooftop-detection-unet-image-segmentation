@@ -16,3 +16,6 @@
 
 # Action Items 🚨🚨🚨🚨
 * make a final version of environment.yml when everything's done
+* Modelling:
+    * model documentation
+    * model steps
