@@ -88,18 +88,10 @@ dida-case-study/
 ```
 
 ## Contributors
-Abhirup Ghosh, <abhirup.ghosh.184098@gmail.com>
-
-
+Abhirup Ghosh | <abhirup.ghosh.184098@gmail.com>
 
 ## License
 This project is licensed under the [MIT License](./LICENSE).
-
-## Action Items 🚨🚨🚨🚨
-* Documentation of modelling parameters:
-    * architecture
-* make a final version of environment.yml when everything's done
-* final directory structure
 
 ## Possible Follow-up:
 * More data exploration: 
