@@ -103,10 +103,8 @@ This project is licensed under the [MIT License](./LICENSE).
 
 * Modelling fine-tuning:
     * Explore why the accuracy curve on the validation set only starts changing after a few epochs when it remains flat. Various factors, like, the initial learning phase, model complexity, lack of appropriate opimisation/regularisation, training set size or learning rate scheduling, can be responsible for such behaviour.
-
     * Explore cyclic behaviour and initially flat validation curve.
-
     * Explore higher batch_size/epoches to smooth out the learning curves/when validation/training curves start diverging.
-
     * Explore more achitectures and/or transfer learning.
 
+* Postprocessing: Add a function to make the edges sharp.
