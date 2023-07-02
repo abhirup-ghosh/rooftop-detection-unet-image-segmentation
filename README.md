@@ -21,7 +21,7 @@ conda env create -f ./opt/conda_environment.yml
 
     - 1.1. **Data loading:** Load training images and labels, and test images  
 
-    - 1.2. **Data Exploration**  
+    - 1.2. **Data Exploration:**  
         - 1.2.1 Visualising the data: look for inconsistencies [some corrupted (?) training images with black spots]  
         - 1.2.2. Data distribution: imbalanced label set [light:dark pixed ~= 1:5]  
 
@@ -38,27 +38,26 @@ conda env create -f ./opt/conda_environment.yml
     - 2.2. **Model Training**:
 
         - 2.2.1. Model Details:
-            ```
-            optimizer = 'adam' # good for boundary detection; other options: RMSprop, SGD
-            loss = 'binary_crossentropy'
-            metrics = ['binary_accuracy'] # other options: binary_crossentropy
-            ```
+
+            * Optimizer: [Adam](https://keras.io/api/optimizers/adam/), a stochastic gradient descent method that is considered good for boundary detection. Other options are: RMSprop, SGD.
+            * Loss: [BinaryCrossentropy](https://keras.io/api/losses/probabilistic_losses/#binarycrossentropy-class), a pixel-wise loss function, which compares the predicted and ground truth boundary masks on a pixel level; useful for boundary detection.
+            * Metrics: [BinaryAccuracy](https://keras.io/api/metrics/accuracy_metrics/#binaryaccuracy-class) [or BinaryCrossentropy], since we are comparing against labels which have binary values.
+
 
         - 2.2.2 Training Details:
-            ```
-            batch_size = 32 # increased in powers of 2, from 8, until statistical fluctuations between epochs stabilised
-            epochs = 100 # increased from 20, until the model showed signs of overfitting (train/valid curves started diverging)
-            validation_split = 0.3
-            ```
+
+            * Batch size: 32. We started from 2 and increased till be hit memory errors. Statistical fluctuations in the learning cuves might suggest that 32 isn't enough.
+            * Epochs: 100. We did not encounter overfitting until this point. Could have gone higher, but seemed enough for this case study.
+            - **Insights from learning curves:** 
+                * **Validation curve initially flat:** The binary accuracy curve remains flat for the first few epochs before growing, which could indicate that the model is initially struggling to learn and make meaningful predictions, but gradually improves its performance as training progresses. This can be because of several reasons, and we add this to our list of possible follow-up investigations.
+                * **Cyclic behaviour:** Some of the reasons might be learning rate, model architecture, data characteristics, insufficient regularisation or overfitting.
     
     - 2.3. **Model Evaluation**: We evaluate the model using the binary accuracy metric on our validation set. Our validation metrics are:
             
             Validation Loss: 0.1360
             Validation Accuracy: 0.9439
     
-    - 2.4. **Testing**: Once you're satisfied with the performance on the validation set, apply your trained model to the test set. Provide the satellite images as input and obtain the predicted boundary masks as output.
-
-    - 2.5. **Post-processing**: If necessary, perform post-processing on the predicted boundary masks to refine the boundaries or remove any unwanted artifacts. Techniques like morphological operations (e.g., dilation, erosion) or connected component analysis can be applied.
+    - 2.4. **Testing & Post-processing**: We use the final model to predict the boundaries of the 5 test images. We need to perform some post-processing, in order to convert the predictions into binary images
 
 
 ## Directory structure
@@ -95,16 +94,23 @@ Abhirup Ghosh, <abhirup.ghosh.184098@gmail.com>
 This project is licensed under the [MIT License](./LICENSE).
 
 ## Action Items 🚨🚨🚨🚨
+* Documentation of modelling parameters:
+    * architecture
 * make a final version of environment.yml when everything's done
-* Modelling:
-    * model documentation
-    * model steps
 * final directory structure
 
 ## Possible Follow-up:
-* More data exploration: calculate statistics that provide insights into pixel intensity distribution [useful for normalised/preprocessing]; analyse variations in dataset [differences in roofstyles, building sizes, environmental conditions] that may affect boundary detction; explore label quality, inconsistencies in labelling, alignment of bounding boxes with the actual roofs, etc.
+* More data exploration: 
+    * calculate statistics that provide insights into pixel intensity distribution [useful for normalised/preprocessing]
+    * analyse variations in dataset [differences in roofstyles, building sizes, environmental conditions] that may affect boundary detction; 
+    * explore label quality, inconsistencies in labelling, alignment of bounding boxes with the actual roofs, etc.
+    * explore effects of black spots in a few training images
+    * explore effects of image brightness and roof symmetry: since satellite images are from directly overhead, but for most of the images, the sun is not, one side of the roof is brighter than the other, leading to contrast issues. As a basic approximation, one could use a higher threshold for detecting the bright half of the roof, and use basic spatial inversion to obtain the other half.
 
-* Explore effects of black spots in a few training images.
+* Modelling fine-tuning:
+    * Explore why the accuracy curve on the validation set only starts changing after a few epochs when it remains flat. Various factors, like, the initial learning phase, model complexity, lack of appropriate opimisation/regularisation, training set size or learning rate scheduling, can be responsible for such behaviour.
 
-* Explore effects of image brightness and roof symmetry: since satellite images are from directly overhead, but for most of the images, the sun is not, one side of the roof is brighter than the other, leading to contrast issues. As a basic approximation, one could use a higher threshold for detecting the bright half of the roof, and use basic spatial inversion to obtain the other half.
+    * Explore cyclic behaviour and initially flat validation curve.
+
+    * Explore higher batch_size/epoches to smooth out the learning curves/when validation/training curves start diverging.
 
