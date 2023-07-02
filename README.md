@@ -76,6 +76,8 @@ dida-case-study/
 │       ├── train_images
 │       └── train_labels
 │   ├── predictions
+│       ├── test_images
+│       ├── test_labels
 │   ├── preprocessed
 ├── notebooks
 │   ├── data-modelling.ipynb
@@ -113,4 +115,6 @@ This project is licensed under the [MIT License](./LICENSE).
     * Explore cyclic behaviour and initially flat validation curve.
 
     * Explore higher batch_size/epoches to smooth out the learning curves/when validation/training curves start diverging.
+
+    * Explore more achitectures and/or transfer learning.
 
