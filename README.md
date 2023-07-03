@@ -1,7 +1,8 @@
+
 # Project: Image segmentation
 
 ## **Top-level summary**
-We were provided 30 satellite pictures of houses. 25 of them had corresponding labels indicating the roofs, and the task was to predict the labels for the other 5. We trained a U-Net architecture on an heavily augmented training set (150 images; the initial sample of 25 images was limiting for the U-Net) using T4 GPUs on Colab, and reached a validation accuracy of 94%. Below, we provide details of the workflow, which are contained in the two notebooks [here](./notebooks/). Using this model, we make predictions for 5 images constituting the test set, and store them [here](./data/predictions/).
+We were provided 30 satellite pictures of houses. 25 of them had corresponding labels indicating the roofs, and the task was to predict the labels for the other 5. We trained a U-Net architecture on an heavily augmented training set (150 images; the initial sample of 25 images was limiting for the U-Net) using T4 GPUs on Colab, and reached a validation accuracy of 94%. Below, we provide details of the workflow, which are contained in the two notebooks [here](./notebooks/). Using this model, we make predictions for 5 images constituting the test set, and store them [here](./data/predictions/). A comparison between test images and labels is [here](./data/predictions/comparison.png). The model has some obvious deficiences and there is much room for improvement, some of which I have mentioned in the follow-up section below.
 
 ## Task Details
 
@@ -22,7 +23,9 @@ conda env create -f ./opt/conda_environment.yml
     - 1.1. **Data loading:** Load training images and labels, and test images  
 
     - 1.2. **Data Exploration:**  
-        - 1.2.1 Visualising the data: look for inconsistencies [some corrupted (?) training images with black spots]  
+        - 1.2.1 Visualising the data:
+            - some images have black/blind spots [possible corruptions/redaction for privacy?]
+            - image 278.png is incorrectly labelled and we drop it from the training set.
         - 1.2.2. Data distribution: imbalanced label set [light:dark pixed ~= 1:5]  
 
     - 1.3. **Data Preprocessing:**  
@@ -47,17 +50,43 @@ conda env create -f ./opt/conda_environment.yml
         - 2.2.2 Training Details:
 
             * Batch size: 32. We started from 2 and increased till be hit memory errors. Statistical fluctuations in the learning cuves might suggest that 32 isn't enough.
-            * Epochs: 100. We did not encounter overfitting until this point. Could have gone higher, but seemed enough for this case study.
-            - **Insights from learning curves:** 
+            * Epochs: 100. We did not encounter overfitting until this point; could have gone higher, but runtime was already quite high.
+            - **Insights from learning curves:**
+                * **Model generalising well:** Training and validation accuracies were comparable after each epoch, which suggests that the model was generalising well.
                 * **Validation curve initially flat:** The binary accuracy curve remains flat for the first few epochs before growing, which could indicate that the model is initially struggling to learn and make meaningful predictions, but gradually improves its performance as training progresses. This can be because of several reasons, and we add this to our list of possible follow-up investigations.
-                * **Cyclic behaviour:** Some of the reasons might be learning rate, model architecture, data characteristics, insufficient regularisation or overfitting.
+                * **Cyclic behaviour:** The loss and metrics curves for both the training and validation sets show cycling hehaviour, which might be related to the learning rate, model architecture, insufficient regularisation or might indicate overfitting. We leave this for future study as well.
     
-    - 2.3. **Model Evaluation**: We evaluate the model using the binary accuracy metric on our validation set. Our validation metrics are:
-            
-            Validation Loss: 0.1360
-            Validation Accuracy: 0.9439
+    - 2.3. **Model Evaluation: Predictions on Validation Set**: We evaluate the model using the binary accuracy metric on our validation set. Our validation metrics are:
     
-    - 2.4. **Testing & Post-processing**: We use the final model to predict the boundaries of the 5 test images. We need to perform some post-processing, in order to convert the predictions into binary images
+        ```
+        Validation Loss: 0.1603
+        Validation Accuracy: 0.9348
+        ```
+
+        - 2.3.1 Visualising Validation Set performance: 10 Worst Predictions
+        - 2.3.2 Visualising Validation Set performance: 10 Best Predictions
+        - **Insights from predictions:**
+            1. The model was able to detect at least a portion of a roof, for all images, except one.
+            2. The boundaries were not as sharp as training labels.
+            3. Color of roof, light/shadow contrast had significant impact on the predictions.
+            4. There are cases, where objects other than the roof, eg, roads, trees, etc, have been identified as potential roofs.
+
+                | What performed well | What performed bad |
+                |--|--|
+                | Augmentation that left a lot of blank space | Augmentation that made the roogs prominent |
+                | Well-lit roofs | Portions of roofs in the shadow |
+                | Brown color | Red color |            
+    
+    - 2.4. **Testing & Post-processing**: We use the final model to predict the boundaries of the 5 test images. We need to perform some post-processing, in order to convert the predictions into binary images. Additionally, we also perform some operations to fill the holes within the boundaries, and making the boundaries sharp. We make a comparison by showing the predictions on top of the test images [here](./data/predictions/comparison.png). We finally save our predictions [here](./data/predictions/).
+
+        **Insights from predictions:**
+
+        1. Our model is able to detect (at least some portion of) every roof in the 5 test images.
+        2. Image 537.png is the best captured, while image 553.png is the worst.
+        3. The algorithm is significantly better at capturing at bright red roofs, and significantly worse for brown roofs partially/wholly in the shadows.
+        4. In general, contrast between light and shadow gives the model problems; we could try mitigating this by including images of varying brightness during augmentation.
+        5. The boundaries are not as sharp and crisp as the training labels. We trying some erosion techniques, but with limited success.
+        6. There are some cases, most prominently for the road in 539.png, where we capture features other than roofs; would need to look at the intermediate layers, because one suspiciion is the model might be focussing on the color of the object, the road being the same color as a lot of the roofs.
 
 
 ## Directory structure
@@ -70,20 +99,20 @@ dida-case-study/
 ├── LICENSE
 ├── README.md
 ├── data
-│   └── raw
-│       ├── dida_test_task.zip
-│       ├── test_images
-│       ├── train_images
-│       └── train_labels
-│   ├── predictions
-│       ├── test_images
-│       ├── test_labels
-│   ├── preprocessed
+│   └── raw
+│       ├── dida_test_task.zip
+│       ├── test_images
+│       ├── train_images
+│       └── train_labels
+│   ├── predictions
+│       ├── test_images
+│       ├── test_labels
+│   ├── preprocessed
 ├── notebooks
-│   ├── data-modelling.ipynb
-│   └── data-wrangling-preprocessing.ipynb
+│   ├── data-modelling.ipynb
+│   └── data-wrangling-preprocessing.ipynb
 ├── opt
-│   └── conda_environment.yml
+│   └── conda_environment.yml
 └── .gitignore
 ```
 
@@ -100,6 +129,7 @@ This project is licensed under the [MIT License](./LICENSE).
     * explore label quality, inconsistencies in labelling, alignment of bounding boxes with the actual roofs, etc.
     * explore effects of black spots in a few training images
     * explore effects of image brightness and roof symmetry: since satellite images are from directly overhead, but for most of the images, the sun is not, one side of the roof is brighter than the other, leading to contrast issues. As a basic approximation, one could use a higher threshold for detecting the bright half of the roof, and use basic spatial inversion to obtain the other half.
+    * explore any possible effect of the imbalance between positive and negative pixels in the label dataset
 
 * Modelling fine-tuning:
     * Explore why the accuracy curve on the validation set only starts changing after a few epochs when it remains flat. Various factors, like, the initial learning phase, model complexity, lack of appropriate opimisation/regularisation, training set size or learning rate scheduling, can be responsible for such behaviour.
@@ -108,3 +138,8 @@ This project is licensed under the [MIT License](./LICENSE).
     * Explore more achitectures and/or transfer learning.
 
 * Postprocessing: Add a function to make the edges sharp.
+
+# Action Items
+* Look at the train images closely and see the different features of the roofs; is there an indication that some rooftypes are better than others?
+* Look at the test images and see if certain rooftypes are better isolated than others.
+* Indicate them in the conclusions.
