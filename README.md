@@ -138,8 +138,3 @@ This project is licensed under the [MIT License](./LICENSE).
     * Explore more achitectures and/or transfer learning.
 
 * Postprocessing: Add a function to make the edges sharp.
-
-# Action Items
-* Look at the train images closely and see the different features of the roofs; is there an indication that some rooftypes are better than others?
-* Look at the test images and see if certain rooftypes are better isolated than others.
-* Indicate them in the conclusions.
