@@ -132,8 +132,9 @@ This project is licensed under the [MIT License](./LICENSE).
     * explore any possible effect of the imbalance between positive and negative pixels in the label dataset
 
 * Modelling fine-tuning:
+    * Explore early-stopping
     * Explore why the accuracy curve on the validation set only starts changing after a few epochs when it remains flat. Various factors, like, the initial learning phase, model complexity, lack of appropriate opimisation/regularisation, training set size or learning rate scheduling, can be responsible for such behaviour.
-    * Explore cyclic behaviour and initially flat validation curve.
+    * Explore cyclic behaviour and initially flat validation curve: **drop-out** [noise]?
     * Explore higher batch_size/epoches to smooth out the learning curves/when validation/training curves start diverging.
     * Explore more achitectures and/or transfer learning.
 
